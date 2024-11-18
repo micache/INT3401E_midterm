@@ -76,13 +76,13 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         score = successorGameState.getScore()
-
+        # lấy vị trí các food
         foodList = newFood.asList()
-        
+        # tìm food gần pacman nhất và ưu tiên đi đến đó
         if foodList: 
             minFoodDistance = min([manhattanDistance(newPos, foodPosition) for foodPosition in foodList])
             score += 1.0/minFoodDistance
-
+        # tính khoảng cách từ pacman đến ma gần nhất, nếu ma đang sợ và gần ma thì lại gần ăn ma, nếu không thì tránh xa ma
         for ghost, scaredTime in zip(newGhostStates, newScaredTimes):
             ghostDistance = manhattanDistance(newPos, ghost.configuration.pos)
 
@@ -91,7 +91,7 @@ class ReflexAgent(Agent):
             else:
                 if ghostDistance < 2:
                     score -= 10
-
+        # không để pacman đứng yên 
         if action == 'Stop':
             score -= 50
         
