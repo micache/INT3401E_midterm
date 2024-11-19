@@ -183,7 +183,65 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+
+        res, score = self.cal_point(0, 0, gameState)
+        return res
         util.raiseNotDefined()
+
+    def cal_point(self, depth: int, id: int, gamestate: GameState):
+
+        # Terminal state
+        if len(gamestate.getLegalActions(id)) == 0 or depth == self.depth:
+            return "", self.evaluationFunction(gamestate)
+        
+        # check if pacman or not
+        if id == 0:
+            return self.find_max(depth, id, gamestate)
+        else:
+            return self.expectimax(depth, id, gamestate)
+        
+    def find_max(self, depth: int, id: int, gamestate: GameState):
+        
+        max_point = float("-inf")
+        max_action = ""
+
+        for move in gamestate.getLegalActions(id):
+            state = gamestate.generateSuccessor(id, move)
+            state_id = (id + 1) % gamestate.getNumAgents()
+            state_depth = depth
+
+            # is pacman, so go down a step
+            if state_id == 0:
+                state_depth += 1
+
+            _, state_point = self.cal_point(state_depth, state_id, state)
+
+            if max_point < state_point:
+                max_point = state_point
+                max_action = move
+        
+        return max_action, max_point
+    
+    def expectimax(self, depth: int, id: int, gamestate: GameState):
+        
+        expect_point = 0.
+        prob = 1.0 / len(gamestate.getLegalActions(id))
+
+        for move in gamestate.getLegalActions(id):
+
+            state = gamestate.generateSuccessor(id, move)
+            state_id = (id + 1) % gamestate.getNumAgents()
+            state_depth = depth
+
+            # is pacman, so go down a step
+            if state_id == 0:
+                state_depth += 1
+
+            state_action, state_point = self.cal_point(state_depth, state_id, state)
+            expect_point += prob * state_point
+        
+        return "", expect_point
+
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
