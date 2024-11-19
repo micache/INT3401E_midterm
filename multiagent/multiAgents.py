@@ -75,7 +75,29 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        score = successorGameState.getScore()
+        # lấy vị trí các food
+        foodList = newFood.asList()
+        # Cân nhắc khoảng cách đến food, ưu tiên food gần nhất
+        if foodList: 
+            minFoodDistance = min([manhattanDistance(newPos, foodPosition) for foodPosition in foodList])
+            score += 1.0/minFoodDistance
+        # Cân nhắc khoảng cách với ma
+        for ghost, scaredTime in zip(newGhostStates, newScaredTimes):
+            # tính khoảng cách đến các ma
+            ghostDistance = manhattanDistance(newPos, ghost.configuration.pos) 
+            # nếu ma sợ đến ăn ma
+            if scaredTime > 0:
+                score += 10.0/ghostDistance if ghostDistance > 0 else 200
+            # nếu ma không sợ và cách ma quá gần, tránh xa ma
+            else:
+                if ghostDistance < 2:
+                    score -= 10
+        # phạt nếu pacman đứng yên
+        if action == 'Stop':
+            score -= 50
+        
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
@@ -231,6 +253,36 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+   # Lấy thông tin cơ bản từ trạng thái hiện tại
+    pacmanPos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghost.scaredTimer for ghost in ghostStates]
+    score = currentGameState.getScore()
+    foodList = food.asList()
+
+    if foodList:
+        closestFood = min(manhattanDistance(pacmanPos, foodPos) for foodPos in foodList)
+        score += 10 / closestFood  # Ưu tiên ăn thức ăn gần nhất
+
+    # 2. Cân nhắc khoảng cách với ma
+    for ghost, scaredTime in zip(ghostStates, scaredTimes):
+        ghostDistance = manhattanDistance(pacmanPos, ghost.getPosition())
+
+        if scaredTime > 0:  # Ma đang sợ, Pacman có thể săn ma
+            score += 200 / ghostDistance if ghostDistance > 0 else 500
+        else:  # Ma không sợ, tránh xa ma
+            if ghostDistance < 2:
+                score -= 500  # Phạt nặng nếu quá gần ma
+
+    # 3. Phạt nặng nếu còn quá nhiều thức ăn
+    score -= len(foodList) * 10
+
+    # 4. Phạt nếu Pacman đứng yên
+    if currentGameState.getPacmanPosition() == pacmanPos:
+        score -= 10
+
+    return score
     util.raiseNotDefined()
 
 # Abbreviation
