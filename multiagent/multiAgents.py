@@ -158,7 +158,42 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        result = self.minimax(gameState, 0, self.depth)
+
+        return result[1]
+    
+    #Lấy ra giá trị Max của Max-agent
+    def max_value(self, gameState: GameState, index, depth):
+        action_list = []
+        for action in gameState.getLegalActions(index):
+            action_list.append((self.minimax(gameState.generateSuccessor(index, action), index + 1, depth)[0], action))
+        return max(action_list)
+    
+    #Lấy ra giá trị Min của Min-agent
+    def min_value(self, gameState: GameState, index, depth):
+        action_list = []
+        for action in gameState.getLegalActions(index):
+            action_list.append((self.minimax(gameState.generateSuccessor(index, action), index + 1, depth)[0], action))
+        return min(action_list)
+    
+    #Tiến hành thuật toán tìm kiếm
+    def minimax(self, gameState: GameState, index, depth):
+        #Trả về kết quả cuối cùng
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return (self.evaluationFunction(gameState), "Stop")
+        
+        #Kiểm tra và cập nhật độ sâu của quá trình tìm kiếm
+        agentsNum = gameState.getNumAgents()
+        index %= agentsNum
+        if index == agentsNum - 1 :
+            depth -= 1
+        
+        if index == 0:
+            #Max-agent: Pacman
+            return self.max_value(gameState, index, depth)
+        else:
+            #Min-agent: Ma
+            return self.min_value(gameState, index, depth)
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -170,7 +205,47 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.minimax(gameState, 0, self.depth)[1]
+
+    #Lấy ra giá trị Max cho Max-agent
+    def maxValue(self, gameState: GameState, index, depth, alpha, beta):
+        action_list = []
+        for action in gameState.getLegalActions(index):
+            v = self.minimax(gameState.generateSuccessor(index, action), index + 1, depth, alpha, beta)[0]
+            action_list.append((v, action))
+            if v > beta:
+                return (v, action)
+            alpha = max(alpha, v)
+        return max(action_list)       
+    
+    #Lấy ra giá trị Min cho Min-agent
+    def minValue(self, gameState: GameState, index, depth, alpha, beta):
+        action_list = []
+        for action in gameState.getLegalActions(index):
+            v = self.minimax(gameState.generateSuccessor(index, action), index + 1, depth, alpha, beta)[0]
+            action_list.append((v, action))
+            if v < alpha:
+                return (v, action)
+            beta = min(beta, v)
+        return min(action_list)
+    
+    def minimax(self, gameState: GameState, index, depth, alpha = -999999, beta = 999999):
+        #Trả về kết quả cuối cùng
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return ( self.evaluationFunction(gameState), "Stop")
+        
+        #Kiểm tra và cập nhật độ sâu tìm kiếm
+        agentsNum = gameState.getNumAgents()
+        index %= agentsNum
+        if index == agentsNum - 1:
+            depth -= 1
+
+        if index == 0:
+            #Max-agent: Pacman
+            return self.maxValue(gameState, index, depth, alpha, beta)
+        else:
+            #Min-agent: Ma
+            return self.minValue(gameState, index, depth, alpha, beta)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
