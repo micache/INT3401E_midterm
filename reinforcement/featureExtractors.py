@@ -27,7 +27,7 @@ class FeatureExtractor:
         util.raiseNotDefined()
 
 class IdentityExtractor(FeatureExtractor):
-    def getFeatures(self, state, action):
+    def getFeatures(self, state, action) -> util.Counter:
         feats = util.Counter()
         feats[(state,action)] = 1.0
         return feats
