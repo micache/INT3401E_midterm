@@ -180,7 +180,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def minimax(self, gameState: GameState, index, depth):
         #Trả về kết quả cuối cùng
         if gameState.isWin() or gameState.isLose() or depth == 0:
-            return (self.evaluationFunction(gameState), "Stop")
+            return (self.evaluationFunction(gameState), "")
         
         #Kiểm tra và cập nhật độ sâu của quá trình tìm kiếm
         agentsNum = gameState.getNumAgents()
@@ -232,7 +232,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     def minimax(self, gameState: GameState, index, depth, alpha = -999999, beta = 999999):
         #Trả về kết quả cuối cùng
         if gameState.isWin() or gameState.isLose() or depth == 0:
-            return ( self.evaluationFunction(gameState), "Stop")
+            return ( self.evaluationFunction(gameState), "")
         
         #Kiểm tra và cập nhật độ sâu tìm kiếm
         agentsNum = gameState.getNumAgents()
